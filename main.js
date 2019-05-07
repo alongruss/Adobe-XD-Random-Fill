@@ -15,8 +15,9 @@
  ******************************************************************************/
 
 const { alert, confirm, prompt, error, warning } = require("./lib/dialogs.js");
-var { Rectangle, Ellipse, Text, Group, RepeatGrid, Color } = require("scenegraph");
-var params = {
+let { Rectangle, Ellipse, Text, Group, RepeatGrid, Color } = require("scenegraph");
+let commands = require("commands");
+let params = {
     "rectangle": true,
     "ellipse": true,
     "text": true,
@@ -24,23 +25,55 @@ var params = {
     "grid": true
 }
 
-function randomColorsCommand(selection) {
-    console.log("Random Fill command is running!");
+let bufferSelection = [];
 
+function randomColorsCommand(selection) {
+    console.clear();
+    console.log("--------------------------------------");
+    console.log("Random Fill command is running!");
     if (selection.items.length > 0) {
         selection.items.filter(item =>
             itemIsAllowed(item))
             .forEach(item => {
-                if (item.isContainer) {
+                if (item instanceof RepeatGrid) { // if we found a RepeatGrid
+                    console.log(item.constructor.name);
+                    // save our selection in the buffer
+                    let bufferSelectionItems = [...selection.items];
+                    //selection.items = arrayRemove(selection.items, item);
+                    // set the active selection to be the RepeatGrid
+                    selection.items = [item];
+                    // ungroup the RepeatGrid
+                    commands.ungroup();
+                    // add our selection buffer to the ungrouped result
+                    //selection.items = bufferSelectionItems;
+                    //bufferSelectionItems.push(selection.items);
+                    //selection.items = bufferSelectionItems;
+                    //Array.prototype.push.apply(selection.items, bufferSelection.items);
+                    //console.log(item.editContext);
+                    //console.log(item.children.at(0).children.at(0));
+                    //console.log(item.children.at(0).children.at(0).width);
+                    //item.children.at(0).children.at(0).width = 50;
+                    //item.children.at(0).children.at(0).fill = new Color("rgb(255,0,0)");
+                }
+
+                /*if (item.isContainer) {
                     randomFillGroup(item);
                 } else {
                     randomFill(item);
-                }
+                }*/
             });
         return console.log(params);
     }
     showNoSelectionError();
 }
+
+function arrayRemove(arr, value) {
+
+    return arr.filter(function(ele){
+        return ele != value;
+    });
+ 
+ }
 
 function randomFillGroup(item) {
     console.log("Randomly filling " + item.constructor.name);
@@ -73,6 +106,7 @@ function itemIsAllowed(item) {
 }
 
 async function randomColorsOptionsCommand(selection) {
+    console.clear();
     if (selection.items.length > 0) {
         // Get and show the dialog
         const dialog = getDialog();
