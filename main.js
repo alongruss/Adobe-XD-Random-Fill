@@ -20,6 +20,7 @@ const { alert, confirm, prompt, error, warning } = require("./lib/dialogs.js");
 let { Line, Rectangle, Ellipse, Path, Text, Group, RepeatGrid, Color } = require("scenegraph");
 let commands = require("commands");
 let params = {
+    "lineFill": false,
     "rectangleFill": true,
     "ellipseFill": true,
     "pathFill": true,
@@ -40,37 +41,35 @@ function randomColorsCommand(selection) {
     console.log("--------------------------------------");
     console.log("Random Color command is running!");
     if (selection.items.length > 0) {
-        selection.items.filter(item =>
-            itemIsAllowed(item))
-            .forEach(item => {
-                if (item instanceof RepeatGrid) { // if we found a RepeatGrid
-                    /* console.log(item.constructor.name);
-                     // save our selection in the buffer
-                     let bufferSelectionItems = [...selection.items];
-                     //selection.items = arrayRemove(selection.items, item);
-                     // set the active selection to be the RepeatGrid
-                     selection.items = [item];
-                     // ungroup the RepeatGrid
-                     commands.ungroup();
-                     // add our selection buffer to the ungrouped result
-                     //selection.items = bufferSelectionItems;
-                     //bufferSelectionItems.push(selection.items);
-                     //selection.items = bufferSelectionItems;
-                     //Array.prototype.push.apply(selection.items, bufferSelection.items);
-                     //console.log(item.editContextFill);
-                     //console.log(item.children.at(0).children.at(0));
-                     //console.log(item.children.at(0).children.at(0).width);
-                     //item.children.at(0).children.at(0).width = 50;
-                     //item.children.at(0).children.at(0).fill = new Color("rgb(255,0,0)");*/
+        selection.items.forEach(item => {
+            if (item instanceof RepeatGrid) { // if we found a RepeatGrid
+                /* console.log(item.constructor.name);
+                 // save our selection in the buffer
+                 let bufferSelectionItems = [...selection.items];
+                 //selection.items = arrayRemove(selection.items, item);
+                 // set the active selection to be the RepeatGrid
+                 selection.items = [item];
+                 // ungroup the RepeatGrid
+                 commands.ungroup();
+                 // add our selection buffer to the ungrouped result
+                 //selection.items = bufferSelectionItems;
+                 //bufferSelectionItems.push(selection.items);
+                 //selection.items = bufferSelectionItems;
+                 //Array.prototype.push.apply(selection.items, bufferSelection.items);
+                 //console.log(item.editContextFill);
+                 //console.log(item.children.at(0).children.at(0));
+                 //console.log(item.children.at(0).children.at(0).width);
+                 //item.children.at(0).children.at(0).width = 50;
+                 //item.children.at(0).children.at(0).fill = new Color("rgb(255,0,0)");*/
+            } else {
+                if (item.isContainer) {
+                    if (setForContainers(item)) randomFillGroup(item);
                 } else {
-                    if (item.isContainer) {
-                        randomFillGroup(item);
-                    } else {
-                        //randomFill(item);
-                        randomStroke(item);
-                    }
+                    if (setForFill(item)) randomFill(item);
+                    if (setForStroke(item)) randomStroke(item);
                 }
-            });
+            }
+        });
         return console.log(params);
     }
     showNoSelectionError();
@@ -86,16 +85,14 @@ function arrayRemove(arr, value) {
 
 function randomFillGroup(item) {
     console.log("Randomly filling " + item.constructor.name);
-    item.children.filter(item =>
-        itemIsAllowed(item))
-        .forEach(item => {
-            if (item.isContainer) {
-                randomFillGroup(item);
-            } else {
-                //randomFill(item);
-                randomStroke(item);
-            }
-        });
+    item.children.forEach(item => {
+        if (item.isContainer) {
+            if (setForContainers(item)) randomFillGroup(item);
+        } else {
+            if (setForFill(item)) randomFill(item);
+            if (setForStroke(item)) randomStroke(item);
+        }
+    });
 }
 
 function randomFill(input) {
@@ -103,7 +100,7 @@ function randomFill(input) {
     input.fill = getRandomColor();
 }
 
-function randomStroke(input){
+function randomStroke(input) {
     console.log("Randomly stroking a " + input.constructor.name);
     input.stroke = getRandomColor();
 }
@@ -116,13 +113,26 @@ function getRandomColor() {
     return randomColor;
 }
 
-function itemIsAllowed(item) {
-    if ((item instanceof Line && params.line) ||
+function setForFill(item) {
+    if ((item instanceof Line && params.lineFill) ||
         (item instanceof Rectangle && params.rectangleFill) ||
         (item instanceof Ellipse && params.ellipseFill) ||
         (item instanceof Path && params.pathFill) ||
-        (item instanceof Text && params.textFill) ||
-        (item instanceof Group && params.group) ||
+        (item instanceof Text && params.textFill)) return true;
+    return false;
+}
+
+function setForStroke(item) {
+    if ((item instanceof Line && params.lineStroke) ||
+        (item instanceof Rectangle && params.rectangleStroke) ||
+        (item instanceof Ellipse && params.ellipseStroke) ||
+        (item instanceof Path && params.pathStroke) ||
+        (item instanceof Text && params.textStroke)) return true;
+    return false;
+}
+
+function setForContainers(item) {
+    if ((item instanceof Group && params.group) ||
         (item instanceof RepeatGrid && params.grid)) return true;
     return false;
 }
@@ -216,15 +226,13 @@ function createDialog() {
           }
 
           footer {
-              background-color: #444;
+              background-color: #bbb;
               border-radius: 25px;
           }
 
         .flex {
             display: flex;
-        }
-
-      
+        }      
 
         .between { justify-content: space-between; }
         .around  { justify-content: space-around; }
@@ -271,13 +279,11 @@ function createDialog() {
                             <input type="checkbox" id="textStrokeChk" name="shape" value="textStroke">
                         </div>
                     </div>
-    
-
                   </div>
                 </fieldset>
                 <hr />
                 <fieldset>
-                  <legend>What container objects do you want to fill?</legend>
+                  <legend>What container objects do you want to randomize?</legend>
                   <div>
                   <label class="row" for="groupChk"><input type="checkbox"  id="groupChk" name="shape" value="group"><span>Groups</span></label>
                   <label class="row" for="gridChk"><input type="checkbox"  id="gridChk" name="shape" value="grid" disabled><span>Grids <span class="bold">(currently unavailable)</span></span></label>
@@ -297,15 +303,15 @@ function createDialog() {
         lineFillChk, rectangleFillChk, ellipseFillChk, pathFillChk, textFillChk,
         lineStrokeChk, rectangleStrokeChk, ellipseStrokeChk, pathStrokeChk, textStrokeChk,
         groupChk, gridChk] = [
-        `dialog`,
-        `form`,
-        "#cancel",
-        "#ok",
-        "#lineFillChk", "#rectangleFillChk", "#ellipseFillChk", "#pathFillChk", "#textFillChk",
-        "#lineStrokeChk", "#rectangleStrokeChk", "#ellipseStrokeChk", "#pathStrokeChk", "#textStrokeChk",
-        "#groupChk",
-        "#gridChk"
-    ].map(s => document.querySelector(s));
+            `dialog`,
+            `form`,
+            "#cancel",
+            "#ok",
+            "#lineFillChk", "#rectangleFillChk", "#ellipseFillChk", "#pathFillChk", "#textFillChk",
+            "#lineStrokeChk", "#rectangleStrokeChk", "#ellipseStrokeChk", "#pathStrokeChk", "#textStrokeChk",
+            "#groupChk",
+            "#gridChk"
+        ].map(s => document.querySelector(s));
 
     //// Populate checkbox elements from saved/default parameters.
     let checkboxArray = [
