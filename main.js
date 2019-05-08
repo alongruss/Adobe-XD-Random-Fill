@@ -1,10 +1,12 @@
 /******************************************************************************
  *
- * Random Fill
+ * Random Colors
  * ----------------
  *
  * Author: Alon Gruss
  * License: MIT
+ * 
+ * This Adobe XD plug-in helps you randomly
  *
  * 
  *
@@ -15,14 +17,20 @@
  ******************************************************************************/
 
 const { alert, confirm, prompt, error, warning } = require("./lib/dialogs.js");
-let { Rectangle, Ellipse, Text, Group, RepeatGrid, Color } = require("scenegraph");
+let { Line, Rectangle, Ellipse, Path, Text, Group, RepeatGrid, Color } = require("scenegraph");
 let commands = require("commands");
 let params = {
-    "rectangle": true,
-    "ellipse": true,
-    "text": true,
+    "rectangleFill": true,
+    "ellipseFill": true,
+    "pathFill": true,
+    "textFill": true,
+    "lineStroke": true,
+    "rectangleStroke": true,
+    "ellipseStroke": true,
+    "pathStroke": true,
+    "textStroke": true,
     "group": true,
-    "grid": true
+    "grid": false
 }
 
 let bufferSelection = [];
@@ -30,37 +38,38 @@ let bufferSelection = [];
 function randomColorsCommand(selection) {
     console.clear();
     console.log("--------------------------------------");
-    console.log("Random Fill command is running!");
+    console.log("Random Color command is running!");
     if (selection.items.length > 0) {
         selection.items.filter(item =>
             itemIsAllowed(item))
             .forEach(item => {
                 if (item instanceof RepeatGrid) { // if we found a RepeatGrid
-                    console.log(item.constructor.name);
-                    // save our selection in the buffer
-                    let bufferSelectionItems = [...selection.items];
-                    //selection.items = arrayRemove(selection.items, item);
-                    // set the active selection to be the RepeatGrid
-                    selection.items = [item];
-                    // ungroup the RepeatGrid
-                    commands.ungroup();
-                    // add our selection buffer to the ungrouped result
-                    //selection.items = bufferSelectionItems;
-                    //bufferSelectionItems.push(selection.items);
-                    //selection.items = bufferSelectionItems;
-                    //Array.prototype.push.apply(selection.items, bufferSelection.items);
-                    //console.log(item.editContext);
-                    //console.log(item.children.at(0).children.at(0));
-                    //console.log(item.children.at(0).children.at(0).width);
-                    //item.children.at(0).children.at(0).width = 50;
-                    //item.children.at(0).children.at(0).fill = new Color("rgb(255,0,0)");
-                }
-
-                /*if (item.isContainer) {
-                    randomFillGroup(item);
+                    /* console.log(item.constructor.name);
+                     // save our selection in the buffer
+                     let bufferSelectionItems = [...selection.items];
+                     //selection.items = arrayRemove(selection.items, item);
+                     // set the active selection to be the RepeatGrid
+                     selection.items = [item];
+                     // ungroup the RepeatGrid
+                     commands.ungroup();
+                     // add our selection buffer to the ungrouped result
+                     //selection.items = bufferSelectionItems;
+                     //bufferSelectionItems.push(selection.items);
+                     //selection.items = bufferSelectionItems;
+                     //Array.prototype.push.apply(selection.items, bufferSelection.items);
+                     //console.log(item.editContextFill);
+                     //console.log(item.children.at(0).children.at(0));
+                     //console.log(item.children.at(0).children.at(0).width);
+                     //item.children.at(0).children.at(0).width = 50;
+                     //item.children.at(0).children.at(0).fill = new Color("rgb(255,0,0)");*/
                 } else {
-                    randomFill(item);
-                }*/
+                    if (item.isContainer) {
+                        randomFillGroup(item);
+                    } else {
+                        //randomFill(item);
+                        randomStroke(item);
+                    }
+                }
             });
         return console.log(params);
     }
@@ -69,11 +78,11 @@ function randomColorsCommand(selection) {
 
 function arrayRemove(arr, value) {
 
-    return arr.filter(function(ele){
+    return arr.filter(function (ele) {
         return ele != value;
     });
- 
- }
+
+}
 
 function randomFillGroup(item) {
     console.log("Randomly filling " + item.constructor.name);
@@ -83,23 +92,36 @@ function randomFillGroup(item) {
             if (item.isContainer) {
                 randomFillGroup(item);
             } else {
-                randomFill(item);
+                //randomFill(item);
+                randomStroke(item);
             }
         });
 }
 
 function randomFill(input) {
     console.log("Randomly filling a " + input.constructor.name);
-    var red = Math.floor((Math.random() * 255));
-    var green = Math.floor((Math.random() * 255));
-    var blue = Math.floor((Math.random() * 255));
-    input.fill = new Color("rgb(" + red + ", " + green + ", " + blue + ")");
+    input.fill = getRandomColor();
+}
+
+function randomStroke(input){
+    console.log("Randomly stroking a " + input.constructor.name);
+    input.stroke = getRandomColor();
+}
+
+function getRandomColor() {
+    const red = Math.floor((Math.random() * 255));
+    const green = Math.floor((Math.random() * 255));
+    const blue = Math.floor((Math.random() * 255));
+    const randomColor = new Color("rgb(" + red + ", " + green + ", " + blue + ")");
+    return randomColor;
 }
 
 function itemIsAllowed(item) {
-    if ((item instanceof Rectangle && params.rectangle) ||
-        (item instanceof Ellipse && params.ellipse) ||
-        (item instanceof Text && params.text) ||
+    if ((item instanceof Line && params.line) ||
+        (item instanceof Rectangle && params.rectangleFill) ||
+        (item instanceof Ellipse && params.ellipseFill) ||
+        (item instanceof Path && params.pathFill) ||
+        (item instanceof Text && params.textFill) ||
         (item instanceof Group && params.group) ||
         (item instanceof RepeatGrid && params.grid)) return true;
     return false;
@@ -140,18 +162,20 @@ function getDialog() {
 }
 
 async function showNoSelectionError() {
-    console.log("Nothing selected (Random fill) - Nothing was selected to be randomaly filled :(\nPlease select an object or a group of objects.");
-    return alert("Nothing selected (Random fill)", "Nothing was selected to be randomaly filled :(\nPlease select an object or a group of objects.");
+    console.log("Nothing selected (Random Color) - Nothing was selected to be randomaly filled :(\nPlease select an object or a group of objects.");
+    return alert("Nothing selected (Random Color)", "Nothing was selected to be randomaly filled :(\nPlease select an object or a group of objects.");
 }
 
 async function showAbout() {
-    return alert("About Random Colors",
-        "Random Colors lets you randomly color selected objects:",
-        "* ggg",
-        "* ggg",
-        "* ggg",
-        "* ggg",
-        "* ggg",
+    return alert("Random Colors by Alon Gruss",
+        "Random Colors lets you randomly fill and/or stroke the following selected objects:",
+        "* Rectangles",
+        "* Ellipses",
+        "* Texts",
+        " ",
+        "----",
+        "Random Colors can also work inside the following container objects:",
+        "* Groups",
         " ",
         "## More Information",
         "----",
@@ -182,13 +206,13 @@ function createDialog() {
     //// Add your HTML to the DOM
     document.body.innerHTML = `
       <style>
-        dialog{
-            //background-color: #7ac;
-            //border: solid 10px #bb5;
-        }
 
           form {
-              
+            //background-color: black;
+          }
+
+          .bold {
+            font-weight: bold;
           }
 
           footer {
@@ -196,18 +220,59 @@ function createDialog() {
               border-radius: 25px;
           }
 
-        .row { align-items: center; }
+        .flex {
+            display: flex;
+        }
+
+      
+
+        .between { justify-content: space-between; }
+        .around  { justify-content: space-around; }
+        .start   { justify-content: flex-start; }
+        .end     { justify-content: flex-end; }
+        .center  { justify-content: center; }
+        .border * {
+            border: 1px solid blue;
+            padding: 4px;
+            margin: 0 4px;
+        }
+
       </style>
       <dialog>
           <form method="dialog">
               <h1>Random fill options</h1>
               <hr />
                 <fieldset>
-                  <legend>What objects do you want to fill?</legend>
-                  <div>
-                  <label class="row" for="rectangleChk"><input type="checkbox"  id="rectangleChk" name="shape" value="rectangle"><span>Rectangles</span></label>
-                  <label class="row" for="ellipseChk"><input type="checkbox"  id="ellipseChk" name="shape" value="ellipse"><span>Ellipses</span></label>
-                  <label class="row" for="textChk"><input type="checkbox"  id="textChk" name="shape" value="text"><span>Texts</span></label>
+                  <legend>What objects properties do you want to randomize?</legend>
+                  <div class="row between" id="wholeTable">
+                    <div class="column between" id="labels">
+                        <label>Type</label>
+                        <label>Lines</label>
+                        <label>Rectangles</label>
+                        <label>Ellipses</label>
+                        <label>Paths</label>
+                        <label>Texts</label>
+                    </div>
+                    <div class="row end" id="boxes">
+                        <div class="column between" id="fillBoxes">
+                            <label>Fill</label>
+                            <input type="checkbox" id="lineFillChk" name="shape" value="lineFill" disabled>
+                            <input type="checkbox" id="rectangleFillChk" name="shape" value="rectangleFill">
+                            <input type="checkbox" id="ellipseFillChk" name="shape" value="ellipseFill">
+                            <input type="checkbox" id="pathFillChk" name="shape" value="pathFill">
+                            <input type="checkbox" id="textFillChk" name="shape" value="textFill">
+                        </div>
+                        <div class="column between" id="strokeBoxes">
+                            <label>Stroke</label>
+                            <input type="checkbox" id="lineStrokeChk" name="shape" value="lineStroke">
+                            <input type="checkbox" id="rectangleStrokeChk" name="shape" value="rectangleStroke">
+                            <input type="checkbox" id="ellipseStrokeChk" name="shape" value="ellipseStroke">
+                            <input type="checkbox" id="pathStrokeChk" name="shape" value="pathStroke">
+                            <input type="checkbox" id="textStrokeChk" name="shape" value="textStroke">
+                        </div>
+                    </div>
+    
+
                   </div>
                 </fieldset>
                 <hr />
@@ -215,7 +280,7 @@ function createDialog() {
                   <legend>What container objects do you want to fill?</legend>
                   <div>
                   <label class="row" for="groupChk"><input type="checkbox"  id="groupChk" name="shape" value="group"><span>Groups</span></label>
-                  <label class="row" for="gridChk"><input type="checkbox"  id="gridChk" name="shape" value="grid"><span>Grids</span></label>
+                  <label class="row" for="gridChk"><input type="checkbox"  id="gridChk" name="shape" value="grid" disabled><span>Grids <span class="bold">(currently unavailable)</span></span></label>
                   </div>
                 </fieldset>
               <footer>
@@ -228,17 +293,27 @@ function createDialog() {
 
     //// Get references to DOM elements
     // Each of these will be used in event handlers below
-    const [dialog, form, cancel, ok, rectangleChk, ellipseChk, textChk, groupChk, gridChk] = [
+    const [dialog, form, cancel, ok,
+        lineFillChk, rectangleFillChk, ellipseFillChk, pathFillChk, textFillChk,
+        lineStrokeChk, rectangleStrokeChk, ellipseStrokeChk, pathStrokeChk, textStrokeChk,
+        groupChk, gridChk] = [
         `dialog`,
         `form`,
         "#cancel",
         "#ok",
-        "#rectangleChk",
-        "#ellipseChk",
-        "#textChk",
+        "#lineFillChk", "#rectangleFillChk", "#ellipseFillChk", "#pathFillChk", "#textFillChk",
+        "#lineStrokeChk", "#rectangleStrokeChk", "#ellipseStrokeChk", "#pathStrokeChk", "#textStrokeChk",
         "#groupChk",
         "#gridChk"
     ].map(s => document.querySelector(s));
+
+    //// Populate checkbox elements from saved/default parameters.
+    let checkboxArray = [
+        lineFillChk, rectangleFillChk, ellipseFillChk, pathFillChk, textFillChk,
+        lineStrokeChk, rectangleStrokeChk, ellipseStrokeChk, pathStrokeChk, textStrokeChk,
+        groupChk, gridChk
+    ];
+    checkboxArray.forEach(checkbox => checkbox.checked = params[checkbox.value]);
 
     //// Add event handlers
     // Close dialog when cancel is clicked.
@@ -246,9 +321,9 @@ function createDialog() {
     cancel.addEventListener("click", () => dialog.close("reasonCanceled"));
 
     // Handle ok button click
-    ok.addEventListener("click", e => handleSubmit(e, dialog, [rectangleChk, ellipseChk, textChk, groupChk, gridChk]));
+    ok.addEventListener("click", e => handleSubmit(e, dialog, checkboxArray));
     // Handle form submit via return key
-    form.onsubmit = e => handleSubmit(e, dialog, [rectangleChk, ellipseChk, textChk, groupChk, gridChk]);
+    form.onsubmit = e => handleSubmit(e, dialog, checkboxArray);
 
     return dialog;
 }
