@@ -6,13 +6,27 @@
  * Author: Alon Gruss
  * License: MIT
  * 
- * This Adobe XD plug-in helps you randomly
- *
- * 
- *
- * 
+ * This Adobe XD plug-in helps you randomly color objects.
  *  
- *  
+ * Copyright (c) 2019 Alon Gruss
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  ******************************************************************************/
 
@@ -215,86 +229,122 @@ function createDialog() {
 
     //// Add your HTML to the DOM
     document.body.innerHTML = `
-      <style>
+    <style>
+    input {
+        padding: 0;
+        margin: 0;
+    }
 
-          form {
-            //background-color: black;
-          }
+    .thin {
+        font-weight: 300;
+    }
 
-          .bold {
-            font-weight: bold;
-          }
+    .thick {
+        font-size: large;
+        font-weight: 700;
+    }
 
-          footer {
-              background-color: #bbb;
-              border-radius: 25px;
-          }
 
-        .flex {
-            display: flex;
-        }      
 
-        .between { justify-content: space-between; }
-        .around  { justify-content: space-around; }
-        .start   { justify-content: flex-start; }
-        .end     { justify-content: flex-end; }
-        .center  { justify-content: center; }
-        .border * {
-            border: 1px solid blue;
-            padding: 4px;
-            margin: 0 4px;
-        }
+    footer {
+        background-color: #bbb;
+        border-radius: 25px;
+    }
 
-      </style>
-      <dialog>
-          <form method="dialog">
-              <h1>Random fill options</h1>
-              <hr />
-                <fieldset>
-                  <legend>What objects properties do you want to randomize?</legend>
-                  <div class="row between" id="wholeTable">
-                    <div class="column between" id="labels">
-                        <label>Type</label>
-                        <label>Lines</label>
-                        <label>Rectangles</label>
-                        <label>Ellipses</label>
-                        <label>Paths</label>
-                        <label>Texts</label>
+    .flex {
+        display: flex;
+    }
+
+    .between {
+        justify-content: space-between;
+    }
+
+    .around {
+        justify-content: space-around;
+    }
+
+    .start {
+        justify-content: flex-start;
+    }
+
+    .end {
+        justify-content: flex-end;
+    }
+
+    .center {
+        justify-content: center;
+    }
+
+    #wholeTable {
+        //padding: 20px;
+        //background-color: #bbb;
+    }
+
+    label {
+        padding: 0 8px;
+    }
+
+
+    * {
+        //border:solid 1px black;
+    }
+</style>
+<dialog>
+    <form method="dialog">
+        <div class="header">
+            <div class="flex row between">
+                <h1 class="flex column around thick">Random Color</h1>
+                <h3 class="flex column around thin">by Alon Gruss</h3>
+            </div>
+            <hr />
+        </div>
+        
+            <h2>What objects properties do you want to randomize?</h2>
+            <div class="flex row between" id="wholeTable">
+                <div class="flex column between" id="labels">
+                    <h3>Type</h3>
+                    <label>Lines</label>
+                    <label>Rectangles</label>
+                    <label>Ellipses</label>
+                    <label>Paths</label>
+                    <label>Texts</label>
+                </div>
+                <div class="flex row end" id="boxes">
+                    <div class="flex column between" id="fillBoxes">
+                        <h3>Fill</h3>
+                        <input type="checkbox" id="lineFillChk" name="shape" value="lineFill" disabled>
+                        <input type="checkbox" id="rectangleFillChk" name="shape" value="rectangleFill">
+                        <input type="checkbox" id="ellipseFillChk" name="shape" value="ellipseFill">
+                        <input type="checkbox" id="pathFillChk" name="shape" value="pathFill">
+                        <input type="checkbox" id="textFillChk" name="shape" value="textFill">
                     </div>
-                    <div class="row end" id="boxes">
-                        <div class="column between" id="fillBoxes">
-                            <label>Fill</label>
-                            <input type="checkbox" id="lineFillChk" name="shape" value="lineFill" disabled>
-                            <input type="checkbox" id="rectangleFillChk" name="shape" value="rectangleFill">
-                            <input type="checkbox" id="ellipseFillChk" name="shape" value="ellipseFill">
-                            <input type="checkbox" id="pathFillChk" name="shape" value="pathFill">
-                            <input type="checkbox" id="textFillChk" name="shape" value="textFill">
-                        </div>
-                        <div class="column between" id="strokeBoxes">
-                            <label>Stroke</label>
-                            <input type="checkbox" id="lineStrokeChk" name="shape" value="lineStroke">
-                            <input type="checkbox" id="rectangleStrokeChk" name="shape" value="rectangleStroke">
-                            <input type="checkbox" id="ellipseStrokeChk" name="shape" value="ellipseStroke">
-                            <input type="checkbox" id="pathStrokeChk" name="shape" value="pathStroke">
-                            <input type="checkbox" id="textStrokeChk" name="shape" value="textStroke">
-                        </div>
+                    <div class="flex column between" id="strokeBoxes">
+                        <h3>Stroke</h3>
+                        <input type="checkbox" id="lineStrokeChk" name="shape" value="lineStroke">
+                        <input type="checkbox" id="rectangleStrokeChk" name="shape" value="rectangleStroke">
+                        <input type="checkbox" id="ellipseStrokeChk" name="shape" value="ellipseStroke">
+                        <input type="checkbox" id="pathStrokeChk" name="shape" value="pathStroke">
+                        <input type="checkbox" id="textStrokeChk" name="shape" value="textStroke">
                     </div>
-                  </div>
-                </fieldset>
-                <hr />
-                <fieldset>
-                  <legend>What container objects do you want to randomize?</legend>
-                  <div>
-                  <label class="row" for="groupChk"><input type="checkbox"  id="groupChk" name="shape" value="group"><span>Groups</span></label>
-                  <label class="row" for="gridChk"><input type="checkbox"  id="gridChk" name="shape" value="grid" disabled><span>Grids <span class="bold">(currently unavailable)</span></span></label>
-                  </div>
-                </fieldset>
-              <footer>
-                  <button id="cancel">Cancel</button>
-                  <button type="submit" id="ok" uxp-variant="cta">OK</button>
-              </footer>
-          </form>
-      </dialog>
+                </div>
+            </div>
+        
+        <hr class="small"/>
+        <fieldset>
+            <h2>What container objects do you want to randomize?</h2>
+            <div>
+                <label class="row" for="groupChk"><input type="checkbox" id="groupChk" name="shape"
+                        value="group"><span>Groups</span></label>
+                <label class="row" for="gridChk"><input type="checkbox" id="gridChk" name="shape" value="grid"
+                        disabled><span>Grids</span><span>(currently unavailable)</span></label>
+            </div>
+        </fieldset>
+        <footer>
+            <button id="cancel">Cancel</button>
+            <button type="submit" id="ok" uxp-variant="cta">OK</button>
+        </footer>
+    </form>
+</dialog>
     `;
 
     //// Get references to DOM elements

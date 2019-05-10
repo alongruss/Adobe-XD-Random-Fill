@@ -1,5 +1,5 @@
 {
-  "summary": "Randomly fill a group of objects.",
+  "summary": "Randomly color objects!",
   "website": "https://alongruss.com",
   "keywords": [
     "random",
@@ -12,7 +12,7 @@
     "en"
   ],
   "author": "Alon Gruss",
-  "description": "Randomly fill a group of objects.",
+  "description": "Randomly color objects!",
   "helpUrl": "alon.gruss+xdplug@gmail.com",
   "main": "main.js",
   "icons": [
@@ -37,8 +37,8 @@
       "height": 192
     }
   ],
-  "version": "1.0.0",
-  "releaseNotes": "Release notes for the plugin version, at least 3 characters and no more than 1000 characters",
+  "version": "1.0.1",
+  "releaseNotes": "Ready for first publish",
   "name": "Random Colors by Alon Gruss",
   "host": {
     "app": "XD",
